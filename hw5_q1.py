@@ -11,7 +11,7 @@ class QuestionnaireAnalysis:
         try:
             self.data_fname = pathlib.Path(data_fname).resolve()
         except TypeError:
-            raise ValueError("Please supply a string or a pathlib.Path instance to the class.")
+            raise ValueError("Please supply a valid type.")
         
         if not self.data_fname.exists():
             raise ValueError(f"File {self.data_fname} does not exist.")
@@ -69,7 +69,6 @@ class QuestionnaireAnalysis:
         
         grade_columns = [col for col in data.columns if question_pattern.match(col)]
         data[grade_columns] = data[grade_columns].apply(pd.to_numeric, errors='coerce')
-
         
         nan_rows = data[grade_columns].isna().any(axis=1)
         indices_corrected = data[nan_rows].index.to_numpy()
@@ -89,8 +88,7 @@ class QuestionnaireAnalysis:
         question_pattern = re.compile(r'^q\d+$')
         grade_columns = [col for col in data.columns if question_pattern.match(col)]
         
-        for col in grade_columns:
-            data[col] = pd.to_numeric(data[col], errors='coerce')
+        data[grade_columns] = data[grade_columns].apply(pd.to_numeric, errors='coerce')
         
         def calculate_score(row):
             num_nans = row[grade_columns].isna().sum()
